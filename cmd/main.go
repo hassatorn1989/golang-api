@@ -25,7 +25,13 @@ func main() {
 		cfg.JWTRefreshExpireDay,
 	)
 
+	// Migrate database
+	if err := database.Migrate(db); err != nil {
+		log.Fatal("Failed to migrate database:", err)
+	}
+
 	// seed data
+	database.SeedDB(db)
 
 	log.Fatal(app.Listen(":" + cfg.AppPort))
 }

@@ -4,6 +4,7 @@ import (
 	// "todo-fiber/internal/middleware"
 
 	"todo-fiber/internal/controllers"
+	"todo-fiber/internal/repositories"
 	"todo-fiber/internal/services"
 
 	"github.com/gofiber/fiber/v3"
@@ -18,7 +19,8 @@ func SetupRoutes(
 	jwtExpireMinute int,
 	jwtRefreshExpireDay int,
 ) {
-	authController := controllers.NewAuthController(services.NewAuthService())
+	userRepository := repositories.NewUserRepository(db)
+	authController := controllers.NewAuthController(services.NewAuthService(userRepository))
 	// authHandler := handlers.NewAuthHandler(
 	// 	db,
 	// 	jwtSecret,
@@ -35,7 +37,7 @@ func SetupRoutes(
 	})
 
 	auth := api.Group("/auth")
-	auth.Post("/register", authController.Register)
+	// auth.Post("/register", authController.Register)
 	auth.Post("/login", authController.Login)
 	// auth.Post("/refresh", authController.Refresh)
 	// auth.Post("/logout", authController.Logout)

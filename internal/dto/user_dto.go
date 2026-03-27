@@ -17,9 +17,10 @@ type UpdateUserRequest struct {
 }
 
 type UserResponse struct {
-	ID           string `json:"id"`
-	Name         string `json:"name"`
-	Email        string `json:"email"`
-	DepartmentID string `json:"department_id"`
-	Role         string `json:"role"`
+	ID           string              `json:"id"`
+	Name         string              `json:"name"`
+	Email        string              `json:"email"`
+	DepartmentID string              `json:"department_id"`
+	Role         string              `json:"role"`
+	Department   *DepartmentResponse `json:"department,omitempty"`
 }

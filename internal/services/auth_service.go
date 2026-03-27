@@ -17,11 +17,12 @@ func NewAuthService(userRepo *repositories.UserRepository) *AuthService {
 }
 
 func (s *AuthService) Login(dto *dto.LoginRequest) (string, error) {
-	user, _ := s.userRepo.GetByEmail(dto.Username)
+	user, _ := s.userRepo.FindByEmail(dto.Email)
 	// เช็คว่าผู้ใช้มีอยู่ในระบบหรือไม่
 	if user == nil {
 		return "", nil
 	}
+
 	// เช็คว่ารหัสผ่านถูกต้องหรือไม่ (ในแอปจริงควรใช้การเข้ารหัสและตรวจสอบรหัสผ่านที่ปลอดภัย)
 	if !utils.CheckPasswordHash(dto.Password, user.Password) {
 		return "", nil
