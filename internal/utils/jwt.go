@@ -7,28 +7,31 @@ import (
 )
 
 type AccessTokenClaim struct {
-	UserID uint   `json:"user_id"`
-	Email  string `json:"email"`
-	Type   string `json:"type"`
+	UserID       string `json:"user_id"`
+	DepartmentID string `json:"department_id"`
+	Role         string `json:"role"`
+	Type         string `json:"type"` // "access"
 	jwt.RegisteredClaims
 }
 
 type RefreshTokenClaim struct {
-	UserID uint   `json:"user_id"`
-	Email  string `json:"email"`
-	Type   string `json:"type"`
+	UserID       string `json:"user_id"`
+	DepartmentID string `json:"department_id"`
+	Role         string `json:"role"`
+	Type         string `json:"type"` // "refresh"
 	jwt.RegisteredClaims
 }
 
-func GenerateAccessToken(userID uint, email, secret string, expireMinute int) (string, error) {
+func GenerateAccessToken(userID string, departmentID string, role, secret string, expireMinute int) (string, error) {
 	claims := AccessTokenClaim{
-		UserID: userID,
-		Email:  email,
-		Type:   "access",
+		UserID:       userID,
+		DepartmentID: departmentID,
+		Role:         role,
+		Type:         "access",
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Duration(expireMinute) * time.Minute)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
-			Subject:   email,
+			Subject:   userID,
 		},
 	}
 
@@ -36,17 +39,18 @@ func GenerateAccessToken(userID uint, email, secret string, expireMinute int) (s
 	return token.SignedString([]byte(secret))
 }
 
-func GenerateRefreshToken(userID uint, email, secret string, expireDay int) (string, time.Time, error) {
+func GenerateRefreshToken(userID string, departmentID string, role, secret string, expireDay int) (string, time.Time, error) {
 	expireAt := time.Now().Add(time.Duration(expireDay) * 24 * time.Hour)
 
 	claims := RefreshTokenClaim{
-		UserID: userID,
-		Email:  email,
-		Type:   "refresh",
+		UserID:       userID,
+		DepartmentID: departmentID,
+		Role:         role,
+		Type:         "refresh",
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(expireAt),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
-			Subject:   email,
+			Subject:   userID,
 		},
 	}
 

@@ -4,6 +4,7 @@ import (
 	// "todo-fiber/internal/middleware"
 
 	"todo-fiber/internal/controllers"
+	"todo-fiber/internal/services"
 
 	"github.com/gofiber/fiber/v3"
 	"gorm.io/gorm"
@@ -17,7 +18,7 @@ func SetupRoutes(
 	jwtExpireMinute int,
 	jwtRefreshExpireDay int,
 ) {
-	authController := controllers.NewAuthController()
+	authController := controllers.NewAuthController(services.NewAuthService())
 	// authHandler := handlers.NewAuthHandler(
 	// 	db,
 	// 	jwtSecret,
@@ -30,11 +31,11 @@ func SetupRoutes(
 	api := app.Group("/api")
 
 	api.Get("/", func(c fiber.Ctx) error {
-		return c.JSON(fiber.Map{"message": "todo fiber api"})
+		return c.JSON(fiber.Map{"message": "todo fiber api is running"})
 	})
 
 	auth := api.Group("/auth")
-	// auth.Post("/register", authController.Register)
+	auth.Post("/register", authController.Register)
 	auth.Post("/login", authController.Login)
 	// auth.Post("/refresh", authController.Refresh)
 	// auth.Post("/logout", authController.Logout)

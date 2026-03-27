@@ -25,5 +25,7 @@ func main() {
 		cfg.JWTRefreshExpireDay,
 	)
 
+	// seed data
+
 	log.Fatal(app.Listen(":" + cfg.AppPort))
 }

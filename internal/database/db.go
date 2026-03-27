@@ -15,7 +15,9 @@ func ConnectDB(dsn string) *gorm.DB {
 		log.Fatal("database connection error:", err)
 	}
 
-	err = db.AutoMigrate(&models.User{})
+	err = db.AutoMigrate(&models.UserModel{},
+		&models.SubjectItemModel{},
+		&models.SubjectTypeAnswerModel{})
 	if err != nil {
 		log.Fatal("automigrate error:", err)
 	}
