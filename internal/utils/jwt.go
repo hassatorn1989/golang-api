@@ -2,6 +2,7 @@ package utils
 
 import (
 	"time"
+	"todo-fiber/internal/dto"
 
 	"github.com/golang-jwt/jwt/v5"
 )
@@ -22,40 +23,42 @@ type RefreshTokenClaim struct {
 	jwt.RegisteredClaims
 }
 
-func GenerateAccessToken(userID string, departmentID string, role, secret string, expireMinute int) (string, error) {
+func GenerateAccessToken(dto dto.AccessTokenClaimsRequest) (string, error) {
 	claims := AccessTokenClaim{
-		UserID:       userID,
-		DepartmentID: departmentID,
-		Role:         role,
+		UserID:       dto.UserID,
+		DepartmentID: dto.DepartmentID,
+		Role:         dto.Role,
 		Type:         "access",
 		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Duration(expireMinute) * time.Minute)),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Duration(dto.ExpiresMinute) * time.Minute)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
-			Subject:   userID,
+			Subject:   dto.UserID,
 		},
 	}
 
+	// stor
+
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString([]byte(secret))
+	return token.SignedString([]byte(dto.Secret))
 }
 
-func GenerateRefreshToken(userID string, departmentID string, role, secret string, expireDay int) (string, time.Time, error) {
-	expireAt := time.Now().Add(time.Duration(expireDay) * 24 * time.Hour)
+func GenerateRefreshToken(dto dto.RefreshTokenClaimsRequest) (string, time.Time, error) {
+	expireAt := time.Now().Add(time.Duration(dto.ExpiresDay) * 24 * time.Hour)
 
 	claims := RefreshTokenClaim{
-		UserID:       userID,
-		DepartmentID: departmentID,
-		Role:         role,
+		UserID:       dto.UserID,
+		DepartmentID: dto.DepartmentID,
+		Role:         dto.Role,
 		Type:         "refresh",
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(expireAt),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
-			Subject:   userID,
+			Subject:   dto.UserID,
 		},
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	signed, err := token.SignedString([]byte(secret))
+	signed, err := token.SignedString([]byte(dto.Secret))
 	return signed, expireAt, err
 }
 

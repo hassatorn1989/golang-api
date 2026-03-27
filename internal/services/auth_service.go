@@ -1,6 +1,7 @@
 package services
 
 import (
+	"errors"
 	"todo-fiber/internal/dto"
 	"todo-fiber/internal/repositories"
 	"todo-fiber/internal/utils"
@@ -16,22 +17,48 @@ func NewAuthService(userRepo *repositories.UserRepository) *AuthService {
 	}
 }
 
-func (s *AuthService) Login(dto *dto.LoginRequest) (string, error) {
-	user, _ := s.userRepo.FindByEmail(dto.Email)
-	// เช็คว่าผู้ใช้มีอยู่ในระบบหรือไม่
-	if user == nil {
-		return "", nil
+func (s *AuthService) Login(req *dto.LoginRequest) (string, error) {
+	user, err := s.userRepo.FindByEmail(req.Email)
+	if err != nil {
+		return "", errors.New("invalid email or password")
 	}
 
 	// เช็คว่ารหัสผ่านถูกต้องหรือไม่ (ในแอปจริงควรใช้การเข้ารหัสและตรวจสอบรหัสผ่านที่ปลอดภัย)
-	if !utils.CheckPasswordHash(dto.Password, user.Password) {
-		return "", nil
+	if !utils.CheckPasswordHash(req.Password, user.Password) {
+		return "", errors.New("invalid email or password")
 	}
 
-	token, err := utils.GenerateAccessToken(user.ID.String(), user.DepartmentID.String(), user.Role, "your-secret-key", 15) // Example: 15 minutes expiration
+	claims := dto.AccessTokenClaimsRequest{
+		UserID:        user.ID.String(),
+		DepartmentID:  user.DepartmentID.String(),
+		Role:          user.Role,
+		Secret:        "your-secret-key",
+		ExpiresMinute: 15,
+	}
+
+	token, err := utils.GenerateAccessToken(claims)
 
 	if err != nil {
-		return "", err
+		return "", errors.New("failed to generate token")
+	}
+
+	return token, nil
+}
+
+func (s *AuthService) RefreshToken(req *dto.RefreshTokenRequest) (string, error) {
+	// ในแอปจริงควรตรวจสอบ refresh token และสร้าง access token ใหม่
+	// ตัวอย่างนี้จะสร้าง access token ใหม่โดยไม่ตรวจสอบ refresh token จริงๆ
+	claims := dto.AccessTokenClaimsRequest{
+		UserID:        "user-id",
+		DepartmentID:  "department-id",
+		Role:          "user-role",
+		Secret:        "your-secret-key",
+		ExpiresMinute: 15,
+	}
+
+	token, err := utils.GenerateAccessToken(claims)
+	if err != nil {
+		return "", errors.New("failed to generate token")
 	}
 
 	return token, nil

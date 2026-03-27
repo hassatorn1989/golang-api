@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
 
 type SubjectItemModel struct {
@@ -20,6 +21,13 @@ type SubjectItemModel struct {
 	// Associations
 	Category CategoryModel `gorm:"foreignKey:CategoryID" json:"category"`
 	Subject  SubjectModel  `gorm:"foreignKey:SubjectID" json:"subject"`
+}
+
+func (r *SubjectItemModel) BeforeCreate(tx *gorm.DB) error {
+	if r.ID == "" {
+		r.ID = uuid.New().String()
+	}
+	return nil
 }
 
 func (SubjectItemModel) TableName() string {

@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
 
 type SubjectModel struct {
@@ -24,6 +25,13 @@ type SubjectModel struct {
 
 	// Associations
 	Department DepartmentModel `gorm:"foreignKey:DepartmentID" json:"department"`
+}
+
+func (s *SubjectModel) BeforeCreate(tx *gorm.DB) error {
+	if s.ID == uuid.Nil {
+		s.ID = uuid.New()
+	}
+	return nil
 }
 
 func (SubjectModel) TableName() string {

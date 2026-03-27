@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
 
 type AnswerModel struct {
@@ -18,6 +19,13 @@ type AnswerModel struct {
 	CreatedAt     time.Time  `json:"created_at"`
 	UpdatedAt     time.Time  `json:"updated_at"`
 	DeletedAt     *time.Time `gorm:"index" json:"deleted_at,omitempty"`
+}
+
+func (a *AnswerModel) BeforeCreate(tx *gorm.DB) error {
+	if a.ID == uuid.Nil {
+		a.ID = uuid.New()
+	}
+	return nil
 }
 
 func (AnswerModel) TableName() string {

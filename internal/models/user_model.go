@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
 
 type UserModel struct {
@@ -23,6 +24,15 @@ type UserModel struct {
 	Department DepartmentModel `gorm:"foreignKey:DepartmentID" json:"department"`
 }
 
+// สร้าง ID ใหม่ก่อนบันทึกถ้ายังไม่มี
+func (u *UserModel) BeforeCreate(tx *gorm.DB) error {
+	if u.ID == uuid.Nil {
+		u.ID = uuid.New()
+	}
+	return nil
+}
+
+// กำหนดชื่อ table ใน database
 func (UserModel) TableName() string {
 	return "users"
 }
